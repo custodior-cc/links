@@ -588,96 +588,59 @@
   </div>
 
   <!-- ═══════════════ SCRIPTS ═══════════════ -->
-  <script>
-    // 1. A URL da sua API do Google Apps Script
-        const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbxqIT7ztHKj_71uQL_nCqpXh1f9r2OlXIrsGCgYickMGtnm3lCqThhMoBNDz4fq4lY_/exec";
-        
-        // 2. Para onde o usuário deve ir no final
-        const urlDestino = "custodior-cc.github.io/links/";
+ <script>
+  // ─── RASTREAMENTO DE VISITA ───────────────────────────────────
+  const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbxqIT7ztHKj_71uQL_nCqpXh1f9r2OlXIrsGCgYickMGtnm3lCqThhMoBNDz4fq4lY_/exec";
 
-        // 3. Capturando os dados do usuário
-        const dadosClique = {
-            userAgent: navigator.userAgent, // Diz se é iPhone, Android, Chrome, etc.
-            referrer: document.referrer || "Acesso Direto / In-App", // Tenta descobrir de onde veio
-            destino: urlDestino
-        };
+  const dadosVisita = {
+    userAgent: navigator.userAgent,
+    referrer:  document.referrer || "Acesso Direto / In-App",
+    destino:   window.location.href   // registra a URL atual, sem redirecionar
+  };
 
-        // 4. Enviando para a planilha e redirecionando
-        fetch(apiGoogleSheets, {
-            method: 'POST',
-            body: JSON.stringify(dadosClique)
-        }).finally(() => {
-            // O '.finally' garante que, mesmo se o Google demorar, 
-            // o usuário será redirecionado sem ficar travado na tela.
-            window.location.href = urlDestino;
-        });
-    // Smooth interactions and analytics
-    document.querySelectorAll('.link-item').forEach(link => {
-      link.addEventListener('click', function() {
-        // Add subtle feedback
-        this.style.transform = 'scale(0.98)';
-        setTimeout(() => {
-          this.style.transform = '';
-        }, 100);
-      });
+  // mode: 'no-cors' é obrigatório para chamadas ao Apps Script pelo browser
+  fetch(apiGoogleSheets, {
+    method: "POST",
+    mode:   "no-cors",               // ← sem isso o navegador bloqueia a requisição
+    body:   JSON.stringify(dadosVisita)
+  }).catch(() => {}); // silencia erros de rede sem travar a página
 
-      // Ripple effect on click
-      link.addEventListener('mousedown', function(e) {
-        const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const ripple = document.createElement('div');
-        ripple.style.position = 'absolute';
-        ripple.style.left = x + 'px';
-        ripple.style.top = y + 'px';
-        ripple.style.width = '10px';
-        ripple.style.height = '10px';
-        ripple.style.background = 'rgba(0, 191, 255, 0.5)';
-        ripple.style.borderRadius = '50%';
-        ripple.style.pointerEvents = 'none';
-        ripple.style.animation = 'ripple 0.6s ease-out forwards';
-        
-        this.appendChild(ripple);
-        setTimeout(() => ripple.remove(), 600);
-      });
+  // ─── INTERAÇÕES DOS LINKS ─────────────────────────────────────
+  document.querySelectorAll(".link-item").forEach(link => {
+    link.addEventListener("click", function () {
+      this.style.transform = "scale(0.98)";
+      setTimeout(() => { this.style.transform = ""; }, 100);
     });
 
-    // Add ripple animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes ripple {
-        from {
-          transform: scale(1);
-          opacity: 1;
-        }
-        to {
-          transform: scale(4);
-          opacity: 0;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Performance: Lazy load and track
-    window.addEventListener('load', () => {
-      document.querySelectorAll('.link-item').forEach((link, index) => {
-        link.style.opacity = '1';
-      });
-    }, { passive: true });
-
-    // Prevent accidental double clicks
-    let lastClickTime = 0;
-    document.querySelectorAll('.link-item, .cta-button').forEach(el => {
-      el.addEventListener('click', function(e) {
-        const now = Date.now();
-        if (now - lastClickTime < 300) {
-          e.preventDefault();
-          return;
-        }
-        lastClickTime = now;
-      });
+    link.addEventListener("mousedown", function (e) {
+      const rect   = this.getBoundingClientRect();
+      const ripple = document.createElement("div");
+      ripple.style.cssText = `
+        position:absolute; pointer-events:none; border-radius:50%;
+        width:10px; height:10px;
+        left:${e.clientX - rect.left}px; top:${e.clientY - rect.top}px;
+        background:rgba(0,191,255,.5);
+        animation:ripple .6s ease-out forwards;
+      `;
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
     });
-  </script>
+  });
+
+  // Animação ripple
+  const s = document.createElement("style");
+  s.textContent = `@keyframes ripple{from{transform:scale(1);opacity:1}to{transform:scale(4);opacity:0}}`;
+  document.head.appendChild(s);
+
+  // Anti-duplo clique
+  let lastClick = 0;
+  document.querySelectorAll(".link-item, .cta-button").forEach(el => {
+    el.addEventListener("click", function (e) {
+      const now = Date.now();
+      if (now - lastClick < 300) { e.preventDefault(); return; }
+      lastClick = now;
+    });
+  });
+</script>
 </body>
 </html>
