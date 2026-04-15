@@ -599,11 +599,12 @@
   };
 
   // mode: 'no-cors' é obrigatório para chamadas ao Apps Script pelo browser
-  fetch(apiGoogleSheets, {
-    method: "POST",
-    mode:   "no-cors",               // ← sem isso o navegador bloqueia a requisição
-    body:   JSON.stringify(dadosVisita)
-  }).catch(() => {}); // silencia erros de rede sem travar a página
+fetch(apiGoogleSheets, {
+  method:  "POST",
+  mode:    "no-cors",
+  headers: { "Content-Type": "text/plain" }, // ← essa linha resolve
+  body:    JSON.stringify(dadosVisita)
+}).catch(() => {});
 
   // ─── INTERAÇÕES DOS LINKS ─────────────────────────────────────
   document.querySelectorAll(".link-item").forEach(link => {
