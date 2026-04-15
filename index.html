@@ -605,12 +605,29 @@ fetch(`${apiGoogleSheets}?${params}`, {
 }).catch(() => {});
 
   // ─── INTERAÇÕES DOS LINKS ─────────────────────────────────────
-  document.querySelectorAll(".link-item").forEach(link => {
-    link.addEventListener("click", function () {
+document.querySelectorAll(".link-item").forEach(link => {
+    link.addEventListener("click", function (e) {
+      // 1. Efeito visual que você já fez
       this.style.transform = "scale(0.98)";
       setTimeout(() => { this.style.transform = ""; }, 100);
-    });
 
+      // 2. RASTREAMENTO DO CLIQUE
+      // Pega o link para onde o botão está levando (ex: https://wa.me/...)
+      const urlDestino = this.getAttribute("href"); 
+      
+      const clickParams = new URLSearchParams({
+        userAgent: navigator.userAgent.substring(0, 150),
+        referrer:  document.referrer || "Acesso Direto / In-App",
+        destino:   urlDestino // Agora a planilha anota o link do botão!
+      });
+
+      // Dispara para o Google Sheets silenciosamente
+      fetch(`${apiGoogleSheets}?${clickParams}`, {
+        method: "GET",
+        mode:   "no-cors"
+      }).catch(() => {});
+    });
+  
     link.addEventListener("mousedown", function (e) {
       const rect   = this.getBoundingClientRect();
       const ripple = document.createElement("div");
