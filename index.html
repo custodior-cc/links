@@ -593,7 +593,7 @@
 const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbwaO-cALoB4t3RAhOQa_bNtrhnwx58XagFsYoyaeXGNTBnMqOUahyecyl8KsnyLzPuQ/exec";
 
 const params = new URLSearchParams({
-  userAgent: navigator.userAgent,
+  userAgent: navigator.userAgent.substring(0, 150),
   referrer:  document.referrer || "Acesso Direto / In-App",
   destino:   window.location.href
 });
