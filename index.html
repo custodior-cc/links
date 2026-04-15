@@ -590,20 +590,18 @@
   <!-- ═══════════════ SCRIPTS ═══════════════ -->
  <script>
   // ─── RASTREAMENTO DE VISITA ───────────────────────────────────
-  const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbxqIT7ztHKj_71uQL_nCqpXh1f9r2OlXIrsGCgYickMGtnm3lCqThhMoBNDz4fq4lY_/exec";
+const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbwaO-cALoB4t3RAhOQa_bNtrhnwx58XagFsYoyaeXGNTBnMqOUahyecyl8KsnyLzPuQ/exec";
 
-  const dadosVisita = {
-    userAgent: navigator.userAgent,
-    referrer:  document.referrer || "Acesso Direto / In-App",
-    destino:   window.location.href   // registra a URL atual, sem redirecionar
-  };
+const params = new URLSearchParams({
+  userAgent: navigator.userAgent,
+  referrer:  document.referrer || "Acesso Direto / In-App",
+  destino:   window.location.href
+});
 
-  // mode: 'no-cors' é obrigatório para chamadas ao Apps Script pelo browser
-fetch(apiGoogleSheets, {
-  method:  "POST",
-  mode:    "no-cors",
-  headers: { "Content-Type": "text/plain" }, // ← essa linha resolve
-  body:    JSON.stringify(dadosVisita)
+// GET com parâmetros: zero problemas de CORS, sem preflight
+fetch(`${apiGoogleSheets}?${params}`, {
+  method: "GET",
+  mode:   "no-cors"
 }).catch(() => {});
 
   // ─── INTERAÇÕES DOS LINKS ─────────────────────────────────────
