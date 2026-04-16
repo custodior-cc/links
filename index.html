@@ -588,46 +588,39 @@
   </div>
 
   <!-- ═══════════════ SCRIPTS ═══════════════ -->
- <script>
-  // ─── RASTREAMENTO DE VISITA ───────────────────────────────────
-const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbwaO-cALoB4t3RAhOQa_bNtrhnwx58XagFsYoyaeXGNTBnMqOUahyecyl8KsnyLzPuQ/exec";
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-HQR8YJTL1B"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-HQR8YJTL1B');
+</script>
 
-const params = new URLSearchParams({
-  userAgent: navigator.userAgent.substring(0, 150),
-  referrer:  document.referrer || "Acesso Direto / In-App",
-  destino:   window.location.href
-});
+<script>
+  // ─── RASTREAMENTO DE VISITA (Google Sheets) ──────────────────
+  const apiGoogleSheets = "https://script.google.com/macros/s/AKfycbwaO-cALoB4t3RAhOQa_bNtrhnwx58XagFsYoyaeXGNTBnMqOUahyecyl8KsnyLzPuQ/exec";
 
-// GET com parâmetros: zero problemas de CORS, sem preflight
-fetch(`${apiGoogleSheets}?${params}`, {
-  method: "GET",
-  mode:   "no-cors"
-}).catch(() => {});
+  const params = new URLSearchParams({
+    userAgent: navigator.userAgent.substring(0, 150),
+    referrer:  document.referrer || "Acesso Direto / In-App",
+    destino:   window.location.href
+  });
 
-  // ─── INTERAÇÕES DOS LINKS ─────────────────────────────────────
-document.querySelectorAll(".link-item").forEach(link => {
+  fetch(`${apiGoogleSheets}?${params}`, {
+    method: "GET",
+    mode:   "no-cors"
+  }).catch(() => {});
+
+  // ─── INTERAÇÕES E EFEITOS VISUAIS ─────────────────────────────
+  document.querySelectorAll(".link-item").forEach(link => {
+    
+    // Efeito de Escala no Clique
     link.addEventListener("click", function (e) {
-      // 1. Efeito visual que você já fez
       this.style.transform = "scale(0.98)";
       setTimeout(() => { this.style.transform = ""; }, 100);
-
-      // 2. RASTREAMENTO DO CLIQUE
-      // Pega o link para onde o botão está levando (ex: https://wa.me/...)
-      const urlDestino = this.getAttribute("href"); 
-      
-      const clickParams = new URLSearchParams({
-        userAgent: navigator.userAgent.substring(0, 150),
-        referrer:  document.referrer || "Acesso Direto / In-App",
-        destino:   urlDestino // Agora a planilha anota o link do botão!
-      });
-
-      // Dispara para o Google Sheets silenciosamente
-      fetch(`${apiGoogleSheets}?${clickParams}`, {
-        method: "GET",
-        mode:   "no-cors"
-      }).catch(() => {});
     });
-  
+
+    // Efeito Ripple (Ondinha)
     link.addEventListener("mousedown", function (e) {
       const rect   = this.getBoundingClientRect();
       const ripple = document.createElement("div");
@@ -643,29 +636,23 @@ document.querySelectorAll(".link-item").forEach(link => {
     });
   });
 
-  // Animação ripple
+  // Estilo da animação ripple
   const s = document.createElement("style");
   s.textContent = `@keyframes ripple{from{transform:scale(1);opacity:1}to{transform:scale(4);opacity:0}}`;
   document.head.appendChild(s);
 
-  // Anti-duplo clique
+  // Anti-duplo clique (Proteção para não bugar o rastreio)
   let lastClick = 0;
   document.querySelectorAll(".link-item, .cta-button").forEach(el => {
     el.addEventListener("click", function (e) {
       const now = Date.now();
-      if (now - lastClick < 300) { e.preventDefault(); return; }
+      if (now - lastClick < 300) { 
+        e.preventDefault(); 
+        return; 
+      }
       lastClick = now;
     });
   });
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HQR8YJTL1B"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-HQR8YJTL1B');
-</script>
 </script>
 </body>
 </html>
